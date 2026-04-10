@@ -1,3 +1,11 @@
+ZADANIE:
+1. Uruchom WERSJĘ A. Ile łącznie zapytań wysłano?
+2. Przełącz na WERSJĘ B (stages). Obserwuj jak VUs rosną i maleją.
+3. Zmień target w stabilnej fazie na 20 – co zmienia się w raporcie?
+4. Usuń sleep(1) – jak zmienia się liczba req/s?
+
+---------------------------------------------------------------------------
+
 WERSJA A: stała liczba VUs przez określony czas
 export const options = {
   vus: 5,
@@ -14,6 +22,6 @@ stages: [
 ],
 };
 
-//sleep(1); 
+sleep(1); 
 
 'X-User-ID': __VU,  // każdy VU ma swój unikalny numer!

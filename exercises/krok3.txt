@@ -1,3 +1,10 @@
+ZADANIE:
+1. Dodaj check który celowo NIE przejdzie:
+'status jest 500': (r) => r.status === 500  → Uruchom i sprawdź co się dzieje z raportem.
+2. Sprawdź czy pizza jest wegetariańska gdy mustBeVegetarian=true:
+'pizza jest wegetariańska': (r) => r.json().pizza.vegetarian === true
+
+
 check(res, {
   'status is 200':               (r) => r.status === 200,
   'response contains pizza':    (r) => r.json().pizza !== undefined,

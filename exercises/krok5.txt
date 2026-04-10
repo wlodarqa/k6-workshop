@@ -1,17 +1,23 @@
+Zadanie:
+ 1. Uruchom test – znajdź swoje metryki w raporcie.
+ 2. Zmień mustBeVegetarian na true – jak zmienia się vegetarian_rate?
+ 3. Przy mustBeVegetarian: true threshold 'rate<0.5' powinien FAIL.
+ Sprawdź: echo $? → powinno być 99.
+ 4. Dodaj własną metrykę Rate dla drogich pizz (> 4 składniki):
+ const expensiveRate = new Rate('quickpizza_many_ingredients');
+ expensiveRate.add(pizza.ingredients.length > 4);
+
+------------------------------------------------------------------------------
+
 Definicje:
-const pizzaCounter    = new Counter('quickpizza_pizzas_ordered');   // ← NOWE
-const ingredientTrend = new Trend('quickpizza_ingredients', true);  // ← NOWE
-const vegetarianRate  = new Rate('quickpizza_vegetarian_rate');     // ← NOWE
+const pizzaCounter    = new Counter('quickpizza_pizzas_ordered'); 
+const ingredientTrend = new Trend('quickpizza_ingredients', true);  
+const vegetarianRate  = new Rate('quickpizza_vegetarian_rate');     
 
 Thresholds:
   quickpizza_ingredients:     ['avg>=2', 'avg<=8'],
     quickpizza_vegetarian_rate: ['rate<0.5'],
 
-
-
-Dodaj własną metrykę Rate dla drogich pizz (> 4 składniki):
-     const expensiveRate = new Rate('quickpizza_many_ingredients');
-     expensiveRate.add(pizza.ingredients.length > 4);
 
 
 Cała assercja:
