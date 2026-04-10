@@ -48,7 +48,6 @@ docker run --rm -it -p 3333:3333 ghcr.io/grafana/quickpizza-local:latest
 Pracujemy na jednym pliku `test.js` – każdy krok to nowa wersja.
 Możesz kopiować kolejny krok do `test.js` albo patrzeć na plik jako referencję.
 
-```bash
 # Uruchamiaj po każdym kroku:
 k6 run test.js
 
