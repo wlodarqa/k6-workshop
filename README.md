@@ -83,7 +83,6 @@ Stworzymy i wykorzystamy scenariusze testów.
 ```
 ## Przydatne komendy
 
-```bash
 # Nadpisz opcje z CLI
 k6 run --vus 1 --iterations 1 test.js   # debug – jedna iteracja
 
