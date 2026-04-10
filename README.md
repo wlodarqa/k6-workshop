@@ -31,9 +31,6 @@ warsztaty-quickpizza/
 # Opcja A – instalacja lokalna
 winget install k6 --source winget  # Windows
 
-# Opcja B – Docker (bez instalacji)
-docker run --rm -v $(pwd):/scripts grafana/k6 run /scripts/czesc1/krok1_basic.js
-
 # Weryfikacja
 k6 version
 ```
@@ -59,27 +56,21 @@ k6 run test.js
 docker run --rm --network=host -v $(pwd):/scripts grafana/k6 run /scripts/test.js
 ```
 
-| Krok | Plik                      | Czas   | Nowe koncepty                        |
-|------|---------------------------|--------|--------------------------------------|
-| 1    | `krok1_basic.js`          | 10 min | http.post, console.log, raport k6    |
-| 2    | `krok2_stages.js`         | 15 min | vus, duration, stages, sleep, __VU   |
-| 3    | `krok3_checks.js`         | 10 min | check(), asercje, rate w raporcie    |
-| 4    | `krok4_thresholds.js`     | 10 min | thresholds, exit code, abortOnFail   |
-| 5    | `krok5_custom_metrics.js` | 15 min | Counter, Trend, Rate, own thresholds |
-| 6    | `krok6_lifecycle_data.js` | 15 min | setup(), teardown(), SharedArray     |
+| Krok | Plik                      | Czas   | Nowe koncepty                  |
+|------|---------------------------|--------|--------------------------------|
+| 1    | `test.js`           | 10 min | http.post, console.log, raport k6    |
+| 2    | `krok2.txt`         | 15 min | vus, duration, stages, sleep, __VU   |
+| 3    | `krok3.txt`         | 10 min | check(), asercje, rate w raporcie    |
+| 4    | `krok4.txt`         | 10 min | thresholds, exit code, abortOnFail   |
+| 5    | `krok5.txt`         | 15 min | Counter, Trend, Rate, own thresholds |
+| 6    | `krok6.txt`         | 15 min | setup(), teardown(), SharedArray     |
 
 ---
 
 ## Część 2 – Samodzielne testy
-
-```bash
-k6 run czesc2/czesc2_A_smoke.js
-k6 run czesc2/czesc2_B_load.js
-k6 run czesc2/czesc2_C_stress.js
-k6 run czesc2/czesc2_D_zaawansowany.js
-
-# Z BASE_URL:
-k6 run -e BASE_URL=http://localhost:3333 czesc2/czesc2_D_zaawansowany.js
+```
+Pracujemy na pliku test2.js
+Stworzymy i wykorzystamy scenariusze testów.
 ```
 
 | Test | Czas   | Cel                                          |
@@ -87,10 +78,10 @@ k6 run -e BASE_URL=http://localhost:3333 czesc2/czesc2_D_zaawansowany.js
 | A    | 15 min | Smoke test – czy aplikacja żyje po deployu   |
 | B    | 20 min | Load test – normalny ruch, group(), metryki  |
 | C    | 15 min | Stress test – szukamy punktu granicy         |
-| D    | 25 min | **Zaawansowany**: rejestracja + login + ocena |
+| D    | 25 min | **Zaawansowany**: rejestracja + login + ocena|
 
 ---
-
+```
 ## Przydatne komendy
 
 ```bash
