@@ -1,0 +1,32 @@
+Definicje:
+const pizzaCounter    = new Counter('quickpizza_pizzas_ordered');   // ← NOWE
+const ingredientTrend = new Trend('quickpizza_ingredients', true);  // ← NOWE
+const vegetarianRate  = new Rate('quickpizza_vegetarian_rate');     // ← NOWE
+
+Thresholds:
+  quickpizza_ingredients:     ['avg>=2', 'avg<=8'],
+    quickpizza_vegetarian_rate: ['rate<0.5'],
+
+
+
+Dodaj własną metrykę Rate dla drogich pizz (> 4 składniki):
+     const expensiveRate = new Rate('quickpizza_many_ingredients');
+     expensiveRate.add(pizza.ingredients.length > 4);
+
+
+Cała assercja:
+
+     check(res, {
+    'status is 200':               (r) => r.status === 200,
+    'response contains pizza':     (r) => r.json().pizza !== undefined,
+    'pizza has a name':            (r) => r.json().pizza.name.length > 0,
+    'number of ingredients >= 2':  (r) => r.json().pizza.ingredients.length >= 2,
+  });
+
+  if (res.status === 200) {
+    const pizza = res.json().pizza;
+    pizzaCounter.add(1);
+    ingredientTrend.add(pizza.ingredients.length);
+    const isVegetarian = pizza.ingredients.every(i => i.vegetarian === true);
+    vegetarianRate.add(isVegetarian);
+  }

@@ -1,0 +1,6 @@
+check(res, {
+  'status is 200':               (r) => r.status === 200,
+  'response contains pizza':    (r) => r.json().pizza !== undefined,
+  'pizza has a name':           (r) => r.json().pizza.name.length > 0,
+  'number of ingredients >= 2': (r) => r.json().pizza.ingredients.length >= 2,
+});

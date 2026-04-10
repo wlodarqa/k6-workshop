@@ -1,0 +1,19 @@
+WERSJA A: stała liczba VUs przez określony czas
+export const options = {
+  vus: 5,
+  duration: '15s',
+};
+
+WERSJA B: stages – ramp-up / stabilizacja / ramp-down 
+
+export const options = {
+stages: [
+{ duration: '10s', target: 10 }, // ramp-up: 0 → 10 VUs
+{ duration: '20s', target: 10 }, // stable:  10 VUs
+{ duration: '10s', target: 0  }, // ramp-down: 10 → 0 VUs
+],
+};
+
+//sleep(1); 
+
+'X-User-ID': __VU,  // każdy VU ma swój unikalny numer!
