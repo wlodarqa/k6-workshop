@@ -92,6 +92,9 @@ k6 run -e BASE_URL=http://localhost:3333 test.js
 # Live dashboard w przeglądarce (http://127.0.0.1:5665)
 K6_WEB_DASHBOARD=true k6 run test.js
 
+# Raport html
+K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report.html k6 run test.js
+
 # Zapisz wyniki do JSON
 k6 run --out json=wyniki.json test.js
 ```
