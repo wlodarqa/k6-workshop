@@ -1,0 +1,24 @@
+KROK 1 – Pierwszy request
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CEL
+Zobaczyć jak działa k6, odczytać nazwę pizzy z odpowiedzi.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZADANIE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Uruchom test. Jaka pizza wylosowana?
+2. Zmień mustBeVegetarian na true – czy zmienia się pizza?
+3. Dodaj do excludedIngredients jeszcze jeden składnik.
+
+Uruchomienie:
+  k6 run test.js
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO WIDZIMY W RAPORCIE?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+http_reqs........: 1        (liczba requestów)
+http_req_duration: avg=Xms  (czas odpowiedzi)
+http_req_failed..: 0.00%    (błędy)

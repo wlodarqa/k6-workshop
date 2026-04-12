@@ -1,0 +1,74 @@
+KROK 5 – Custom metrics: Counter, Trend, Rate
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CEL
+Mierzyć nie tylko HTTP – ale konkretne aspekty biznesowe aplikacji:
+ile pizz zamówiono, ile miały składników, ile było wegetariańskich.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZADANIE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dodaj nowe elementy do test.js (patrz sekcja poniżej) i uruchom.
+   Znajdź swoje metryki na końcu raportu.
+
+2. Zmień mustBeVegetarian na true i uruchom ponownie.
+   Jak zmienia się quickpizza_vegetarian_rate?
+
+3. Przy mustBeVegetarian: true threshold 'rate<0.5' powinien FAIL.
+   Sprawdź: echo $?  →  powinno być 99.
+
+4. Dodaj własną metrykę Rate dla pizz z dużą liczbą składników (> 4):
+   const expensiveRate = new Rate('quickpizza_many_ingredients');
+   expensiveRate.add(pizza.ingredients.length > 4);
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO DODAJEMY DO test.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// 1. nowy import – zastąp istniejącą linię importu z k6/metrics
+import { Counter, Trend, Rate } from 'k6/metrics';
+
+// 2. definicje metryk – wklej przed export const options
+const pizzaCounter    = new Counter('quickpizza_pizzas_ordered');
+const ingredientTrend = new Trend('quickpizza_ingredients', true);
+const vegetarianRate  = new Rate('quickpizza_vegetarian_rate');
+
+// 3. thresholds – dodaj do istniejącego bloku thresholds w options
+quickpizza_ingredients:     ['avg>=2', 'avg<=8'],
+quickpizza_vegetarian_rate: ['rate<0.5'],
+
+// 4. zastąp istniejący blok check() i dodaj rejestrację metryk
+check(res, {
+  'status is 200':               (r) => r.status === 200,
+  'response contains pizza':     (r) => r.json().pizza !== undefined,
+  'pizza has a name':            (r) => r.json().pizza.name.length > 0,
+  'number of ingredients >= 2':  (r) => r.json().pizza.ingredients.length >= 2,
+});
+
+if (res.status === 200) {
+  const pizza = res.json().pizza;
+  pizzaCounter.add(1);
+  ingredientTrend.add(pizza.ingredients.length);
+  const isVegetarian = pizza.ingredients.every(i => i.vegetarian === true);
+  vegetarianRate.add(isVegetarian);
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO WIDZIMY W RAPORCIE?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+quickpizza_pizzas_ordered....: 185      4.62/s
+quickpizza_ingredients.......: avg=4.2  min=2  med=4  max=7  p(95)=7
+quickpizza_vegetarian_rate...: 0.00%   ← mustBeVegetarian: false
+
+// Po zmianie mustBeVegetarian na true:
+quickpizza_vegetarian_rate...: 100.00%
+✗ quickpizza_vegetarian_rate.: rate<0.5   ← FAIL!
+$ echo $?
+99
+
+Kluczowe:
+  Counter = sumuje wartości (liczba pizz, zamówień)
+  Trend   = rozkład z percentylami (liczba składników, czasy)
+  Rate    = procent niezerowych wartości (% wege, % drogich)

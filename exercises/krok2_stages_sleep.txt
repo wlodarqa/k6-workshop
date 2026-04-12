@@ -1,0 +1,65 @@
+KROK 2 – Obciążenie: vus, duration, stages
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CEL
+Nauczyć się modelować ruch – ilu użytkowników, jak długo, ramp-up.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZADANIE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dodaj nowe elementy do test.js (patrz sekcja poniżej) i uruchom WERSJĘ A.
+   Ile łącznie requestów wysłano?
+
+2. Przełącz na WERSJĘ B (zakomentuj options A, odkomentuj options B).
+   Uruchom i obserwuj w terminalu jak VUs rosną i maleją.
+
+3. W WERSJI B zmień target w fazie stable na 20 VUs.
+   Co zmienia się w raporcie?
+
+4. Usuń sleep(1) i uruchom ponownie.
+   Jak zmienia się liczba req/s? Dlaczego to problem dla testowanej aplikacji?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO DODAJEMY DO test.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. nowy import na górze pliku
+import { sleep } from 'k6';
+
+2. blok options – wklej przed export default function
+
+WERSJA A: stała liczba VUs przez określony czas
+export const options = {
+  vus:      5,
+  duration: '15s',
+};
+
+WERSJA B: stages – ramp-up / stabilizacja / ramp-down
+
+export const options = {
+stages: [
+     { duration: '10s', target: 10 }, // ramp-up: 0 → 10 VUs
+     { duration: '20s', target: 10 }, // stable:  10 VUs
+     { duration: '10s', target:  0 }, // ramp-down: 10 → 0 VUs
+   ],
+ };
+
+3. zmiana w headers – zastąp 'X-User-ID': 1
+'X-User-ID': __VU,
+
+4. nowa linia na końcu default function, przed zamknięciem }
+sleep(1);
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO WIDZIMY W RAPORCIE?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+vus..............: max=5  (aktywni wirtualni użytkownicy)
+iterations.......: X  Y/s (ile iteracji + przepustowość)
+http_reqs........: X  Y/s (liczba requestów)
+
+Kluczowe:
+  __VU     = numer wirtualnego użytkownika (1, 2, 3...)
+  __ITER   = numer iteracji danego VU (0, 1, 2...)
+  sleep(1) = pauza 1s między iteracjami (realistyczne zachowanie)

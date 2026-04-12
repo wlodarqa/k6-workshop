@@ -1,0 +1,52 @@
+KROK 3 – Checks: asercje odpowiedzi
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CEL
+Weryfikować co jest w odpowiedzi, nie tylko czy request przeszedł.
+Zrozumieć różnicę między check() a thresholds – check nie failuje testu.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZADANIE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dodaj blok check do test.js (patrz sekcja poniżej) i uruchom.
+   Znajdź w raporcie sekcję checks – ile % przeszło?
+
+2. Dodaj check który celowo NIE przejdzie i uruchom ponownie:
+   'status jest 500': (r) => r.status === 500
+   Co się dzieje z raportem? Czy test się zalicza? Sprawdź: echo $?
+
+3. Zmień mustBeVegetarian na true i dodaj check:
+   'pizza jest wegetariańska': (r) =>
+       r.json().pizza.ingredients.every(i => i.vegetarian === true)
+   Czy check przechodzi?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO DODAJEMY DO test.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// 1. nowy import – dodaj check do istniejącej linii importu
+import { check, sleep } from 'k6';
+
+// 2. blok check – wklej po http.post(), przed sleep(1)
+check(res, {
+  'status is 200':               (r) => r.status === 200,
+  'response contains pizza':     (r) => r.json().pizza !== undefined,
+  'pizza has a name':            (r) => r.json().pizza.name.length > 0,
+  'number of ingredients >= 2':  (r) => r.json().pizza.ingredients.length >= 2,
+});
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO WIDZIMY W RAPORCIE?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+checks_total.......: 100.00%  ✓ 740 / ✗ 0
+
+// Gdy jeden check nie przechodzi:
+checks_total.......: 75.00%   ✓ 555 / ✗ 185
+$ echo $?
+0   ← test NADAL zaliczony! check() nie zmienia exit code.
+
+Kluczowe:
+  check()     = liczy sukcesy/błędy, nie failuje testu
+  threshold   = kryterium zaliczenia, zmienia exit code (krok 4)

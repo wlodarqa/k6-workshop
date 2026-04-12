@@ -1,0 +1,62 @@
+KROK 4 – Thresholds: kryteria zaliczenia testu
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CEL
+Zrozumieć różnicę między check() a threshold.
+Threshold to twarde kryterium – jeśli nie spełnione, test kończy się
+exit code 99 i pipeline CI/CD failuje.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZADANIE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dodaj blok thresholds do options (patrz sekcja poniżej) i uruchom.
+   Czy test przechodzi? Sprawdź: echo $?
+
+2. Zmień threshold na niemożliwy do spełnienia:
+   http_req_duration: ['p(95)<10']   (10ms to za mało)
+   Uruchom. Jakim kodem kończy się test?
+   Sprawdź: echo $?
+
+3. Dodaj threshold który przerywa test od razu gdy jest naruszony:
+   http_req_duration: [{ threshold: 'p(95)<10', abortOnFail: true }]
+   Kiedy dokładnie test się zatrzymuje?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO DODAJEMY DO test.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// dodaj thresholds do istniejącego bloku options
+export const options = {
+  stages: [
+    { duration: '10s', target: 10 },
+    { duration: '20s', target: 10 },
+    { duration: '10s', target:  0 },
+  ],
+  thresholds: {
+    // Test FAILUJE (exit code 99) jeśli warunki nie są spełnione:
+    http_req_failed:   ['rate<0.01'],   // mniej niż 1% błędów HTTP
+    http_req_duration: ['p(95)<1000'],  // 95% requestów poniżej 1 sekundy
+    checks:            ['rate>0.99'],   // ponad 99% asercji zaliczona
+  },
+};
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CO WIDZIMY W RAPORCIE?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Gdy thresholds przechodzą:
+✓ http_req_failed...: rate<0.01
+✓ http_req_duration.: p(95)<1000
+✓ checks............: rate>0.99
+$ echo $?
+0   ← test zaliczony
+
+// Gdy threshold naruszony:
+✗ http_req_duration.: p(95)<10   ← FAIL!
+$ echo $?
+99  ← test NIEZALICZONY
+
+Kluczowe:
+  exit code 0  = test zaliczony
+  exit code 99 = threshold naruszony → CI/CD failuje → PR zablokowany
