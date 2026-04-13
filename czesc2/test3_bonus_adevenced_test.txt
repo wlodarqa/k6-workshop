@@ -11,7 +11,7 @@ O CO CHODZI?
 W poprzednich testach wysyłaliśmy jedno żądanie do jednego endpointu.
 W prawdziwej aplikacji użytkownik wykonuje sekwencję powiązanych akcji:
 
-  1. Rejestruje się i loguje (setup – jeden raz)
+  1. Rejestruje się i loguje (setup – jeden raz przed startem VUs)
   2. Zamawia pizzę i dostaje jej ID
   3. Ocenia tę konkretną pizzę (wymaga ID z kroku 2 i tokena z kroku 1)
   4. Sprawdza czy ocena pojawiła się na liście
@@ -20,53 +20,63 @@ To jest właśnie user flow – test który odzwierciedla realne zachowanie
 użytkownika, nie tylko bombardowanie jednego endpointu.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CO NOWEGO W TYM TEŚCIE?
+CO DZIEJE SIĘ W KAŻDYM KROKU?
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  setup()       – rejestracja użytkownika i logowanie uruchamia się
-                  RAZ przed startem wszystkich VUs. Token jest
-                  przekazywany do każdego VU przez return.
+setup() – uruchamia się RAZ przed startem wszystkich VUs
+  - rejestruje nowego użytkownika (POST /api/users)
+  - loguje się i pobiera token (POST /api/users/token/login)
+  - przekazuje token do wszystkich VUs przez return
+  - w terminalu zobaczysz:
+    === Zarejestrowano użytkownika: user_1234567890@test.com ===
 
-  Dane między   – pizzaId z pierwszego żądania jest przekazywane
-  żądaniami       do drugiego. Bez niego ocena nie jest możliwa.
+group('POST /api/pizza') – zamówienie pizzy
+  - wysyła restrictions i dostaje rekomendację
+  - zapisuje pizza.id do przekazania dalej
+  - rejestruje metryki: Counter, Trend, Rate
+  - w terminalu zobaczysz:
+    VU 1: zamówiono "The Cute Carbonara" (6 składników, nie-wege 🍖)
 
-  Autoryzacja   – POST /api/ratings wymaga Bearer tokena.
-                  Bez niego dostaniesz 401.
+group('POST /api/ratings') – ocena pizzy
+  - wymaga pizza_id z poprzedniego kroku
+  - wymaga Bearer tokena z setup()
+  - losuje ocenę 1-5 gwiazdek
+  - w terminalu zobaczysz:
+    VU 1: oceniono "The Cute Carbonara" – 4 ⭐⭐⭐⭐
 
-  group()       – każde żądanie jest w osobnej grupie, dzięki czemu
-                  w raporcie widać czasy osobno dla każdego kroku.
+group('GET /api/ratings') – weryfikacja
+  - sprawdza czy ocena pojawiła się na liście
+  - wymaga Bearer tokena z setup()
+
+teardown() – uruchamia się RAZ po zakończeniu wszystkich VUs
+  - wypisuje log że scenariusz się skończył
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 JAKI EFEKT CHCEMY UZYSKAĆ?
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Po uruchomieniu testu chcemy zobaczyć:
+W raporcie:
+  ✓ pizza: status 200
+  ✓ rating: status 201
+  ✓ ratings: status 200
 
-  W terminalu (na żywo):
-    INFO[0001] VU 1: The Cute Carbonara (6 składników)
-    INFO[0002] VU 2: A Pink Margherita (4 składniki)
-
-  W raporcie:
-    ✓ pizza: status 200
-    ✓ rating: status 201
-    ✓ ratings: status 200
-
-    quickpizza_pizzas_ordered....: X      Y/s
-    quickpizza_ratings_created...: X      Y/s
-    quickpizza_ingredients_count.: avg=X  p(95)=X
-    quickpizza_vegetarian_rate...: X%
+  quickpizza_pizzas_ordered....: X      Y/s
+  quickpizza_ratings_created...: X      Y/s
+  quickpizza_ingredients_count.: avg=X  p(95)=X
+  quickpizza_vegetarian_rate...: X%
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 URUCHOMIENIE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  k6 run -e SCENARIO=smoke test3.js
+  k6 run -e SCENARIO=smoke test2_solution.js
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ZADANIA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Uruchom z SCENARIO=smoke. Sprawdź w logach nazwy pizz.
+1. Uruchom z SCENARIO=smoke. Obserwuj logi w terminalu –
+   jaką pizzę zamówił VU 1? Ile gwiazdek dostała?
 
 2. Uruchom z SCENARIO=load. Porównaj czasy grup w raporcie:
    Który endpoint jest wolniejszy – pizza czy ratings?
@@ -74,6 +84,6 @@ ZADANIA
 3. Zmień mustBeVegetarian na true.
    Jak zmienia się quickpizza_vegetarian_rate?
 
-4. Usuń token z headera w POST /api/ratings:
-   'Authorization': `Bearer WRONGTOKEN`
+4. Ustaw błędny token w POST /api/ratings:
+   'Authorization': 'Bearer WRONGTOKEN'
    Co się dzieje z checkiem 'rating: status 201'?
