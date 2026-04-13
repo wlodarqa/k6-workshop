@@ -19,5 +19,5 @@ export default function () {
     },
   });
 
-  console.log(`${res.json().pizza.name} (${res.json().pizza.ingredients.length} ingredients`);
+  console.log(`${res.json().pizza.name} (${res.json().pizza.ingredients.length} ingredients)`);
 }

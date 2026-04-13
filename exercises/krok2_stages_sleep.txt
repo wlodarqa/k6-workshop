@@ -45,7 +45,7 @@ stages: [
    ],
  };
 
-3. zmiana w headers – zastąp 'X-User-ID': 1
+3. zmiana w headers – dodaj:
 'X-User-ID': __VU,
 
 4. nowa linia na końcu default function, przed zamknięciem }

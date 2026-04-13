@@ -38,7 +38,7 @@ const vegetarianRate  = new Rate('quickpizza_vegetarian_rate');
 quickpizza_ingredients:     ['avg>=2', 'avg<=8'],
 quickpizza_vegetarian_rate: ['rate<0.5'],
 
-// 4. zastąp istniejący blok check() i dodaj rejestrację metryk
+// 4. zastąp istniejący blok check() i dodaj rejestrację metryk po nim
 check(res, {
   'status is 200':               (r) => r.status === 200,
   'response contains pizza':     (r) => r.json().pizza !== undefined,
@@ -60,12 +60,12 @@ CO WIDZIMY W RAPORCIE?
 
 quickpizza_pizzas_ordered....: 185      4.62/s
 quickpizza_ingredients.......: avg=4.2  min=2  med=4  max=7  p(95)=7
-quickpizza_vegetarian_rate...: 0.00%   ← mustBeVegetarian: false
+quickpizza_vegetarian_rate...: ~30%   ← mustBeVegetarian: false (losowe)
 
 // Po zmianie mustBeVegetarian na true:
 quickpizza_vegetarian_rate...: 100.00%
 ✗ quickpizza_vegetarian_rate.: rate<0.5   ← FAIL!
-$ echo $?
+echo $?
 99
 
 Kluczowe:
